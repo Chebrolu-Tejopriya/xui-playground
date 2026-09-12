@@ -1,0 +1,21 @@
+node_modules
+dist
+
+# Jetro's installer writes agent config into every project it touches. Same
+# reason it is ignored in the xui repo: machine-specific paths, and six copies
+# of a blurb about a finance platform that has nothing to do with this.
+.mcp.json
+.cursor/
+.codex/
+.agents/
+.windsurfrules
+AGENT.md
+CLAUDE.md
+.github/copilot-instructions.md
+
+# Vercel
+.vercel
+
+# local tooling - CONTAINS CREDENTIALS. This was staged by a `git add -A` and
+# caught before the commit; the xui repo ignores it for the same reason.
+.jetro/
