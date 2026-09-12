@@ -9,6 +9,7 @@ dist
 .codex/
 .agents/
 .windsurfrules
+# AGENT.md is Jetro's; AGENTS.md (plural) is ours and IS tracked.
 AGENT.md
 CLAUDE.md
 .github/copilot-instructions.md
