@@ -13,12 +13,13 @@
     "predev": "node scripts/gen-demo-dates.mjs",
     "prebuild": "node scripts/gen-demo-dates.mjs",
     "setup": "node scripts/setup.mjs",
-    "share": "node scripts/share.mjs"
+    "share": "node scripts/share.mjs",
+    "update-xui": "node scripts/update-xui.mjs"
   },
   "dependencies": {
+    "@koinx/xui": "github:Chebrolu-Tejopriya/xui",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7",
-    "@koinx/xui": "github:Chebrolu-Tejopriya/xui"
+    "react-dom": "^19.2.7"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",
