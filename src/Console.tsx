@@ -310,8 +310,17 @@ function Sidebar() {
         background: 'var(--surface-raised)',
       }}
     >
-      <div style={{ font: 'var(--type-subtitle-1)', marginBottom: 'var(--spacing-24)' }}>
+      <div style={{ font: 'var(--type-subtitle-1)', marginBottom: 'var(--spacing-4)' }}>
         Console
+      </div>
+      <div
+        style={{
+          font: 'var(--type-body-3)',
+          color: 'var(--content-tertiary)',
+          marginBottom: 'var(--spacing-24)',
+        }}
+      >
+        xuiground.vercel.app
       </div>
       <a href="?" style={linkStyle}>
         All demos
