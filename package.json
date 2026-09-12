@@ -11,7 +11,9 @@
     "lint:tokens": "xui-lint-tokens src",
     "check": "npm run typecheck && npm run lint:tokens",
     "predev": "node scripts/gen-demo-dates.mjs",
-    "prebuild": "node scripts/gen-demo-dates.mjs"
+    "prebuild": "node scripts/gen-demo-dates.mjs",
+    "setup": "node scripts/setup.mjs",
+    "share": "node scripts/share.mjs"
   },
   "dependencies": {
     "react": "^19.2.7",
