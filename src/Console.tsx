@@ -88,6 +88,76 @@ function DemoView({ demo }: { demo: Demo }) {
   );
 }
 
+/**
+ * A mobile demo, shown at a phone's width instead of stretched across a desktop.
+ *
+ * This has to be an <iframe> and not a 390px-wide <div>. Drawer, Dialog and
+ * Toast all render through createPortal into document.body, so they escape any
+ * container in the React tree — opening this demo full-screen gave a bottom
+ * sheet spanning 1900px, which is the opposite of what it is for. A frame is a
+ * real viewport, so a portal has nowhere else to go.
+ *
+ * The inner document loads with `raw=1` so it renders the demo bare rather than
+ * framing it again, forever.
+ */
+function PhoneFrame({ demo, theme }: { demo: Demo; theme: Theme }) {
+  const W = 390;
+  return (
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 'var(--spacing-16)',
+        padding: 'var(--spacing-24)',
+        background: 'var(--surface-secondary)',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'var(--spacing-12)',
+          width: '100%',
+          maxWidth: 720,
+        }}
+      >
+        <a href="?" style={{ color: 'var(--content-secondary)', textDecoration: 'none' }}>
+          ← All demos
+        </a>
+        <span style={{ font: 'var(--type-subtitle-2)', color: 'var(--content-primary)' }}>
+          {demo.title}
+        </span>
+        <span style={{ font: 'var(--type-body-3)', color: 'var(--content-tertiary)' }}>
+          {W}px
+        </span>
+      </div>
+
+      <div
+        style={{
+          width: W,
+          /* Fill the window but never exceed a phone's proportions on a tall
+             screen; the demo scrolls inside, as it would on a device. */
+          height: `min(844px, calc(100vh - 120px))`,
+          flex: 'none',
+          overflow: 'hidden',
+          borderRadius: 28,
+          border: '1px solid var(--border-secondary)',
+          background: 'var(--surface-primary)',
+          boxShadow: 'var(--shadow-lg, 0 12px 32px rgb(0 0 0 / 0.18))',
+        }}
+      >
+        <iframe
+          src={`?demo=${demo.id}&theme=${theme}&raw=1`}
+          title={demo.title}
+          style={{ width: '100%', height: '100%', border: 0, display: 'block' }}
+        />
+      </div>
+    </div>
+  );
+}
+
 function Centered({ children }: { children: React.ReactNode }) {
   return (
     <div
@@ -125,7 +195,7 @@ function Thumbnail({ demo, theme }: { demo: Demo; theme: Theme }) {
       }}
     >
       <iframe
-        src={`?demo=${demo.id}&theme=${theme}`}
+        src={`?demo=${demo.id}&theme=${theme}&raw=1`}
         title={demo.title}
         loading="lazy"
         tabIndex={-1}
@@ -414,5 +484,9 @@ export default function Console() {
       </Centered>
     );
   }
+  // `raw=1` is the inside of a frame, or a thumbnail. Anything else that is
+  // mobile gets shown at a phone's width rather than stretched to the window.
+  const raw = new URLSearchParams(window.location.search).get('raw') === '1';
+  if (demo.platform === 'mobile' && !raw) return <PhoneFrame demo={demo} theme={theme} />;
   return <DemoView demo={demo} />;
 }
