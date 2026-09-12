@@ -20,3 +20,9 @@ CLAUDE.md
 # local tooling - CONTAINS CREDENTIALS. This was staged by a `git add -A` and
 # caught before the commit; the xui repo ignores it for the same reason.
 .jetro/
+
+# Private demos. A folder whose name starts with _ is yours alone: it shows in
+# your local console, `npm run share` never sees it because git never sees it,
+# and it never reaches the deployed site. Rename it without the underscore when
+# you want the team to have it.
+src/demos/*/_*/

@@ -264,14 +264,33 @@ function Card({ demo, theme }: { demo: Demo; theme: Theme }) {
           }}
         >
           <Owner name={demo.owner} />
-          <span
-            style={{
-              font: 'var(--type-body-3)',
-              letterSpacing: '0.04em',
-              color: 'var(--content-tertiary)',
-            }}
-          >
-            {demo.platform.toUpperCase()}
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--spacing-8)' }}>
+            {/* Say it on the card, not only in the docs. Someone who cannot
+                remember whether a demo is shared will assume the wrong one,
+                and both wrong assumptions are bad. */}
+            {demo.isPrivate && (
+              <span
+                style={{
+                  font: 'var(--type-body-3)',
+                  padding: '2px var(--spacing-8)',
+                  borderRadius: 999,
+                  background: 'var(--surface-secondary)',
+                  color: 'var(--content-secondary)',
+                }}
+                title="Private — gitignored, never published"
+              >
+                Local only
+              </span>
+            )}
+            <span
+              style={{
+                font: 'var(--type-body-3)',
+                letterSpacing: '0.04em',
+                color: 'var(--content-tertiary)',
+              }}
+            >
+              {demo.platform.toUpperCase()}
+            </span>
           </span>
         </div>
       </div>

@@ -27,6 +27,12 @@ export interface Demo extends DemoMeta {
   slug: string;
   /** Relative, e.g. "3 days ago". Absent when git has not been read. */
   updated?: string;
+  /**
+   * A slug starting with `_` is private: .gitignore hides the folder, so it
+   * renders in YOUR console and can never be committed, shared or deployed.
+   * Rename it without the underscore to publish it.
+   */
+  isPrivate: boolean;
   /** Loaded on open, not on list — 60 demos must not all be in the first bundle. */
   load: () => Promise<{ default: ComponentType }>;
 }
@@ -57,6 +63,7 @@ export const demos: Demo[] = Object.entries(metaModules)
       owner,
       slug,
       ...mod.default,
+      isPrivate: slug.startsWith('_'),
       updated: (dates as Record<string, string>)[id],
       load: loader,
     };

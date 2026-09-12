@@ -67,6 +67,8 @@ if (!mine.length) {
   // Not an error: they may have already shared and just want the link.
   console.log(`  ${C.d}Nothing new to share. Everything is already on the Console.${C.x}`);
   console.log(`\n  ${SITE}\n`);
+  console.log(`  ${C.d}Working on a demo whose folder starts with _ ? That one is private${C.x}`);
+  console.log(`  ${C.d}on purpose - rename it without the underscore to publish it.${C.x}`);
   process.exit(0);
 }
 
