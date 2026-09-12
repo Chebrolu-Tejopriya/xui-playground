@@ -53,8 +53,23 @@ try {
 // Anything shallower is shared scaffolding: types.ts, and dates.generated.json,
 // which is rebuilt from git on every dev and build and is not somebody's work.
 const isDemo = (f) => f.startsWith('src/demos/') && f.split('/').length >= 4;
-const mine = changed.filter(isDemo);
+// `npm run share checkout-v3` publishes ONLY that demo. Without a name,
+// everything changed goes - fine when you have been working on one thing, a
+// surprise when you have three on the go. The narrow form means publishing one
+// prototype never quietly publishes a half-finished second.
+const pick = process.argv.slice(2).join(' ').trim().toLowerCase();
+const slugOf = (f) => f.split('/')[3];
+const allMine = changed.filter(isDemo);
+const mine = pick ? allMine.filter((f) => slugOf(f).toLowerCase() === pick) : allMine;
 const other = changed.filter((f) => !isDemo(f));
+
+if (pick && !mine.length && allMine.length) {
+  stop(
+    `No changed demo called \"${pick}\".`,
+    'Run `npm run share` with no name to publish all of them. Changed now: ' +
+      [...new Set(allMine.map(slugOf))].join(', '),
+  );
+}
 
 if (!mine.length) {
   if (other.length) {
@@ -75,6 +90,14 @@ if (!mine.length) {
 const demos = [...new Set(mine.map((f) => f.split('/').slice(0, 4).join('/')))];
 console.log(`  ${demos.length} demo(s) changed:`);
 for (const d of demos) console.log(`    ${d.replace('src/demos/', '')}`);
+const held = [...new Set(allMine.map(slugOf))].filter(
+  (d) => !demos.some((path) => path.endsWith('/' + d)),
+);
+if (held.length) {
+  console.log('');
+  console.log(`  ${C.y}Holding back ${held.length} other changed demo(s)${C.x}`);
+  for (const d of held) console.log(`    ${d}`);
+}
 if (other.length) {
   console.log(`\n  ${C.y}Leaving ${other.length} other changed file(s) alone${C.x}`);
   console.log(`  ${C.d}share only publishes demos; commit console changes yourself.${C.x}`);
@@ -89,14 +112,14 @@ const who = (() => {
     return '';
   }
 })();
-const note = process.argv.slice(2).join(' ').trim();
-const message =
-  note || `${demos.map((d) => d.replace('src/demos/', '')).join(', ')}${who ? ` — ${who}` : ''}`;
+const message = `${demos.map((d) => d.replace('src/demos/', '')).join(', ')}${who ? ' — ' + who : ''}`;
 
 console.log('');
 try {
   // Explicit paths, never -A.
-  spawnSync('git', ['add', 'src/demos', 'package.json', 'package-lock.json'], { stdio: 'inherit' });
+  // Stage the chosen demo folders by name rather than all of src/demos, so a
+  // narrowed share really is narrow. Explicit paths, never -A.
+  spawnSync('git', ['add', ...demos, 'package.json', 'package-lock.json'], { stdio: 'inherit' });
   git(`commit -m ${JSON.stringify(message)}`);
   console.log(`  ${C.g}✓${C.x} Saved  ${C.d}${message}${C.x}`);
 } catch (e) {
