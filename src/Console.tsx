@@ -336,7 +336,7 @@ function Gallery({ theme, toggleTheme }: { theme: Theme; toggleTheme: () => void
 
   return (
     <div style={shell}>
-      <Sidebar />
+      <Sidebar isGallery />
       <main style={{ flex: 1, minWidth: 0, padding: 'var(--spacing-32)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <h1 style={{ font: 'var(--type-heading-3)', margin: 0 }}>
@@ -432,21 +432,34 @@ function Gallery({ theme, toggleTheme }: { theme: Theme; toggleTheme: () => void
   );
 }
 
-function Sidebar() {
+function Sidebar({ isGallery }: { isGallery: boolean }) {
   return (
     <nav
       style={{
         width: 220,
         flex: 'none',
-        padding: 'var(--spacing-24) var(--spacing-16)',
+        padding: 'var(--spacing-32) var(--spacing-16)',
         borderRight: 'var(--border-width-regular) solid var(--border-secondary)',
         background: 'var(--surface-raised)',
       }}
     >
-      <div style={{ font: 'var(--type-subtitle-1)', marginBottom: 'var(--spacing-24)' }}>
+      {/* 36px matches the theme button, which is what sets the height of the
+          main column's header row - so the wordmark and the "N demos" heading
+          sit on the same line instead of eight pixels apart. */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          height: 36,
+          padding: '0 var(--spacing-12)',
+          font: 'var(--type-subtitle-1)',
+          color: 'var(--content-primary)',
+          marginBottom: 'var(--spacing-24)',
+        }}
+      >
         Console
       </div>
-      <a href="?" style={linkStyle}>
+      <a href="?" aria-current={isGallery ? 'page' : undefined} style={isGallery ? linkActive : linkStyle}>
         All demos
       </a>
       {/* Linked, not rebuilt. The design system already has a far better home
@@ -462,9 +475,19 @@ const linkStyle = {
   display: 'block',
   padding: 'var(--spacing-8) var(--spacing-12)',
   borderRadius: 'var(--radius-sm)',
-  color: 'var(--content-primary)',
+  color: 'var(--content-secondary)',
   textDecoration: 'none',
   font: 'var(--type-body-2)',
+} as const;
+
+/* Selected carries weight AND background, not colour alone - a nav that marks
+   the current page with hue only disappears for anyone who cannot separate the
+   two. Same reason SidebarItem in XUI pairs its tone change with a fill. */
+const linkActive = {
+  ...linkStyle,
+  color: 'var(--content-brand-primary)',
+  background: 'var(--surface-brand-secondary)',
+  font: 'var(--type-subtitle-2)',
 } as const;
 
 /* ---- entry ---------------------------------------------------------------- */
