@@ -1,4 +1,5 @@
-import { Suspense, lazy, useMemo, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
+import { DayIcon, NightIcon } from '@koinx/xui';
 import { demos, owners, countsByPlatform } from './demos/registry';
 import type { Demo } from './demos/registry';
 
@@ -36,6 +37,46 @@ const shell = {
   font: 'var(--type-body-2)',
 } as const;
 
+/* ---- theme ---------------------------------------------------------------- */
+
+/**
+ * XUI keys off `[data-theme]` on the root, with bare `:root` giving light — so
+ * switching is one attribute.
+ *
+ * A demo renders in its own <iframe>, which is a separate document and does not
+ * inherit that attribute. The theme therefore rides along in the URL, and the
+ * frame applies it on mount. Without that, thumbnails stay light on a dark page.
+ */
+type Theme = 'light' | 'dark';
+
+const KEY = 'xui-console-theme';
+
+function useTheme(): [Theme, () => void] {
+  const [theme, setTheme] = useState<Theme>(() => {
+    const fromUrl = new URLSearchParams(window.location.search).get('theme');
+    if (fromUrl === 'dark' || fromUrl === 'light') return fromUrl;
+    try {
+      const saved = localStorage.getItem(KEY);
+      if (saved === 'dark' || saved === 'light') return saved;
+    } catch {
+      // Private windows and blocked site data throw on access rather than
+      // returning null. The default is fine; do not take the page down for it.
+    }
+    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    try {
+      localStorage.setItem(KEY, theme);
+    } catch {
+      // Same as above - a preference that cannot be saved is not an error.
+    }
+  }, [theme]);
+
+  return [theme, () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))];
+}
+
 /* ---- the demo route ------------------------------------------------------- */
 
 function DemoView({ demo }: { demo: Demo }) {
@@ -66,7 +107,7 @@ function Centered({ children }: { children: React.ReactNode }) {
 
 /* ---- cards ---------------------------------------------------------------- */
 
-function Thumbnail({ demo }: { demo: Demo }) {
+function Thumbnail({ demo, theme }: { demo: Demo; theme: Theme }) {
   const frame = FRAME[demo.platform];
   // Scale the real render down rather than storing a screenshot: a screenshot
   // is stale the moment the demo changes, and nobody re-takes it.
@@ -84,7 +125,7 @@ function Thumbnail({ demo }: { demo: Demo }) {
       }}
     >
       <iframe
-        src={`?demo=${demo.id}`}
+        src={`?demo=${demo.id}&theme=${theme}`}
         title={demo.title}
         loading="lazy"
         tabIndex={-1}
@@ -101,7 +142,7 @@ function Thumbnail({ demo }: { demo: Demo }) {
   );
 }
 
-function Card({ demo }: { demo: Demo }) {
+function Card({ demo, theme }: { demo: Demo; theme: Theme }) {
   const [hover, setHover] = useState(false);
   return (
     <a
@@ -121,7 +162,7 @@ function Card({ demo }: { demo: Demo }) {
         transition: 'border-color 120ms ease',
       }}
     >
-      <Thumbnail demo={demo} />
+      <Thumbnail demo={demo} theme={theme} />
       <div style={{ padding: 'var(--spacing-12) var(--spacing-16) var(--spacing-16)' }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--spacing-8)' }}>
           <span style={{ font: 'var(--type-subtitle-2)', color: 'var(--content-primary)' }}>
@@ -205,7 +246,7 @@ const control = {
   cursor: 'pointer',
 } as const;
 
-function Gallery() {
+function Gallery({ theme, toggleTheme }: { theme: Theme; toggleTheme: () => void }) {
   const [platform, setPlatform] = useState<Platform>('all');
   const [owner, setOwner] = useState('all');
   const [query, setQuery] = useState('');
@@ -227,9 +268,31 @@ function Gallery() {
     <div style={shell}>
       <Sidebar />
       <main style={{ flex: 1, minWidth: 0, padding: 'var(--spacing-32)' }}>
-        <h1 style={{ font: 'var(--type-heading-3)', margin: 0 }}>
-          {demos.length} {demos.length === 1 ? 'demo' : 'demos'}
-        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <h1 style={{ font: 'var(--type-heading-3)', margin: 0 }}>
+            {demos.length} {demos.length === 1 ? 'demo' : 'demos'}
+          </h1>
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Switch to light' : 'Switch to dark'}
+            title={theme === 'dark' ? 'Switch to light' : 'Switch to dark'}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 36,
+              height: 36,
+              borderRadius: 'var(--radius-sm)',
+              border: 'var(--border-width-regular) solid var(--border-primary)',
+              background: 'var(--surface-raised)',
+              color: 'var(--content-secondary)',
+              cursor: 'pointer',
+            }}
+          >
+            {theme === 'dark' ? <DayIcon size={18} /> : <NightIcon size={18} />}
+          </button>
+        </div>
 
         <div
           style={{
@@ -290,7 +353,7 @@ function Gallery() {
             }}
           >
             {shown.map((d) => (
-              <Card key={d.id} demo={d} />
+              <Card key={d.id} demo={d} theme={theme} />
             ))}
           </div>
         )}
@@ -310,17 +373,8 @@ function Sidebar() {
         background: 'var(--surface-raised)',
       }}
     >
-      <div style={{ font: 'var(--type-subtitle-1)', marginBottom: 'var(--spacing-4)' }}>
+      <div style={{ font: 'var(--type-subtitle-1)', marginBottom: 'var(--spacing-24)' }}>
         Console
-      </div>
-      <div
-        style={{
-          font: 'var(--type-body-3)',
-          color: 'var(--content-tertiary)',
-          marginBottom: 'var(--spacing-24)',
-        }}
-      >
-        xui-playground.vercel.app
       </div>
       <a href="?" style={linkStyle}>
         All demos
@@ -330,17 +384,6 @@ function Sidebar() {
       <a href="https://xui.koinx.com" target="_blank" rel="noreferrer" style={linkStyle}>
         XUI design system ↗
       </a>
-      <div
-        style={{
-          marginTop: 'var(--spacing-24)',
-          font: 'var(--type-body-3)',
-          color: 'var(--content-tertiary)',
-          lineHeight: 1.5,
-        }}
-      >
-        Prototypes built with XUI. Add one by creating
-        <code style={{ display: 'block', marginTop: 4 }}>src/demos/&lt;you&gt;/&lt;name&gt;/</code>
-      </div>
     </nav>
   );
 }
@@ -357,8 +400,11 @@ const linkStyle = {
 /* ---- entry ---------------------------------------------------------------- */
 
 export default function Console() {
+  // Applies `data-theme` on mount, reading ?theme= first — which is how a demo
+  // rendered inside a thumbnail iframe inherits the gallery's theme.
+  const [theme, toggleTheme] = useTheme();
   const id = new URLSearchParams(window.location.search).get('demo');
-  if (!id) return <Gallery />;
+  if (!id) return <Gallery theme={theme} toggleTheme={toggleTheme} />;
 
   const demo = demos.find((d) => d.id === id);
   if (!demo) {
