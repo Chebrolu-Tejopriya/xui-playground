@@ -320,7 +320,7 @@ function Sidebar() {
           marginBottom: 'var(--spacing-24)',
         }}
       >
-        xuiground.vercel.app
+        xui-playground.vercel.app
       </div>
       <a href="?" style={linkStyle}>
         All demos
