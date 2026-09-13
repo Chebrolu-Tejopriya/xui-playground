@@ -483,7 +483,7 @@ function Sidebar({ isGallery }: { isGallery: boolean }) {
       </a>
       {/* Linked, not rebuilt. The design system already has a far better home
           than anything that would be reimplemented here. */}
-      <a href="https://xui.koinx.com" target="_blank" rel="noreferrer" style={linkStyle}>
+      <a href="https://xui-five.vercel.app" target="_blank" rel="noreferrer" style={linkStyle}>
         XUI design system ↗
       </a>
     </nav>

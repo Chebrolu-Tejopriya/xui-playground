@@ -39,7 +39,7 @@ searchable icon index, the MCP server, the token linter, and the learnings.
 
 The design system's **repo** — its gates, its Storybook, its Figma parity
 skills — does not, and should not. Changing XUI is a separate job in a separate
-repo: <https://xui.koinx.com>.
+repo: <https://xui-five.vercel.app>.
 
 ## The rules, short
 
