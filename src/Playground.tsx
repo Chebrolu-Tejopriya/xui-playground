@@ -1,5 +1,17 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
-import { DayIcon, NightIcon } from '@koinx/xui';
+import {
+  DayIcon,
+  NightIcon,
+  AppShell,
+  AppShellMain,
+  // Aliased: the gallery's own nav below is also called Sidebar.
+  Sidebar as XuiSidebar,
+  SidebarHeader,
+  SidebarNav,
+  SidebarItem,
+  KoinXWordmark,
+  KoinXMark,
+} from '@koinx/xui';
 import { demos, owners, countsByPlatform } from './demos/registry';
 import type { Demo } from './demos/registry';
 
@@ -158,6 +170,41 @@ function PhoneFrame({ demo, theme }: { demo: Demo; theme: Theme }) {
   );
 }
 
+/**
+ * A web demo shown inside KoinX, instead of floating on an empty page.
+ *
+ * Opt-in through `nav` in meta.ts. A screen rendered alone reads as a mockup;
+ * the same screen with the product's sidebar round it, and its own nav item
+ * selected, reads as a place in KoinX — which is the question a prototype is
+ * usually trying to answer. Same idea as Intercom's design playground.
+ *
+ * Built only from XUI's own AppShell and Sidebar, so it is the real shell and
+ * not a drawing of one. It deliberately has no section heading: XUI's Sidebar
+ * has no such component, and inventing one here would be the Playground
+ * designing the system instead of using it.
+ *
+ * Not an iframe, unlike PhoneFrame. There is no portal to contain — a sidebar
+ * does not escape its parent — so thumbnails render it too, and the card in
+ * the gallery shows the screen in the product rather than without it.
+ */
+function ProductFrame({ demo }: { demo: Demo }) {
+  const [collapsed, setCollapsed] = useState(false);
+  const nav = demo.nav!;
+  return (
+    <AppShell style={{ height: '100vh' }}>
+      <XuiSidebar collapsed={collapsed} onToggleCollapsed={() => setCollapsed((c) => !c)}>
+        <SidebarHeader>{collapsed ? <KoinXMark /> : <KoinXWordmark />}</SidebarHeader>
+        <SidebarNav>
+          <SidebarItem icon={nav.icon} label={nav.item} selected />
+        </SidebarNav>
+      </XuiSidebar>
+      <AppShellMain>
+        <DemoView demo={demo} />
+      </AppShellMain>
+    </AppShell>
+  );
+}
+
 function Centered({ children }: { children: React.ReactNode }) {
   return (
     <div
@@ -200,6 +247,10 @@ function Thumbnail({ demo, theme }: { demo: Demo; theme: Theme }) {
         loading="lazy"
         tabIndex={-1}
         style={{
+          // flex: none, or the flex parent shrinks a 1440 iframe to the ~370px
+          // card - under XUI's 900px breakpoint - and every web thumbnail
+          // silently showed the MOBILE layout: no sidebar, one narrow column.
+          flex: 'none',
           width: frame.w,
           height: frame.h,
           border: 0,
@@ -530,5 +581,9 @@ export default function Playground() {
   // mobile gets shown at a phone's width rather than stretched to the window.
   const raw = new URLSearchParams(window.location.search).get('raw') === '1';
   if (demo.platform === 'mobile' && !raw) return <PhoneFrame demo={demo} theme={theme} />;
+  // Not gated on `raw`: that flag only exists to stop phone frames nesting
+  // inside iframes forever, and the product frame is not an iframe. So the
+  // gallery thumbnail shows the product frame too.
+  if (demo.platform === 'web' && demo.nav) return <ProductFrame demo={demo} />;
   return <DemoView demo={demo} />;
 }

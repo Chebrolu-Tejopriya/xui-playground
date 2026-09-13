@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>XUI Playground</title>
+    <!-- The browser's default 8px body margin. XUI's stylesheet does not reset
+         it - a component library has no business restyling the page it lands
+         in - so without this every demo sat 8px off the edge and the page
+         scrolled by 16px. The KoinX sidebar is flush to the window. -->
+    <style>body { margin: 0; }</style>
   </head>
   <body>
     <div id="root"></div>

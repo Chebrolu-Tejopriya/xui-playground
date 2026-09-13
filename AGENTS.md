@@ -15,12 +15,18 @@ demo goes, the rules, and how to publish.
 
 ```
 src/demos/<person>/<slug>/
-  meta.ts      title + platform
+  meta.ts      title + platform (+ nav, for a web screen)
   index.tsx    the demo
 ```
 
 Discovered from the filesystem, never registered. A demo is in the Playground the
 moment its folder exists.
+
+**A web screen goes inside KoinX, not on a blank page.** Set `nav` in `meta.ts` —
+`{ item: 'Transactions', icon: TransactionsIcon }` — and the Playground draws the
+KoinX sidebar with that one item selected, and your screen in the main column.
+The demo then renders only the page: no AppShell, no Sidebar, no logo of its own.
+Start from `src/demos/examples/empty-page/`.
 
 ## The commands
 
@@ -46,4 +52,6 @@ repo: <https://xui-five.vercel.app>.
 1. **Never write a raw colour.** Semantic tokens only. The linter enforces it.
 2. **Never hand-write an `<svg>` for an icon.** `npx xui-find-icon "<meaning>"`.
 3. **Check the system has it before building it.** It usually does.
-4. **Do not edit XUI to make a demo work.** That is a PR on the other repo.
+4. **A web screen sets `nav`**, unless it deliberately builds a whole sidebar of
+   its own. Never both — that is a sidebar inside a sidebar.
+5. **Do not edit XUI to make a demo work.** That is a PR on the other repo.

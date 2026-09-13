@@ -37,14 +37,55 @@ run setup first.
 ```
 src/demos/<your-name>/<demo-slug>/
   meta.ts     title + platform ('mobile' | 'web') + an optional one-line note
+              + nav, for a web screen
   index.tsx   default export: the component
 ```
+
+**Copy `src/demos/examples/empty-page/` to start.** It is the smallest correct
+web demo.
 
 `<your-name>` is the person's own folder — lowercase, hyphenated. Take it from
 `git config user.name` rather than asking; setup put it there for this.
 
 Nothing registers a demo. The Playground discovers it from the filesystem, so it
 appears the moment the folder exists.
+
+## Put the screen in the product
+
+A web screen floating on an empty page reads as a mockup. The same screen with
+KoinX's sidebar round it reads as a place in the product — which is usually the
+question the prototype exists to answer. So for any **web** demo, set `nav`:
+
+```ts
+import { TransactionsIcon } from '@koinx/xui';
+
+export default {
+  title: 'Transaction filters',
+  platform: 'web',
+  nav: { item: 'Transactions', icon: TransactionsIcon },
+} satisfies DemoMeta;
+```
+
+The Playground then draws XUI's real `AppShell` and `Sidebar` — KoinX logo, that
+**one** item, selected — and puts the demo in the main column. So `index.tsx`
+returns **only the page**:
+
+- no `AppShell`, no `Sidebar`, no logo — the frame already has them
+- no `min-height: 100vh` or centring the whole page — you are in a column now
+- no fake extra nav items to make it look fuller; one item is the point
+
+Name the item after where the screen lives in KoinX, and pick its icon with
+`npx xui-find-icon "<section>"` — Icons v2's *Navigation & Sections* set is drawn
+for exactly this: Overview, Portfolio, Transactions, Wallets, Taxes, and more.
+If you are not sure where it lives, **ask** rather than guess; the nav item is a
+claim about the product.
+
+**The exception:** a demo that is *about* the navigation — several items,
+sub-items, a footer, the collapse behaviour — builds its own `AppShell` and
+leaves `nav` unset. `teja/professionals-dashboard` is one. Never both: that is a
+sidebar inside a sidebar.
+
+Mobile demos ignore `nav`; they render in a phone frame instead.
 
 ## Building it
 
