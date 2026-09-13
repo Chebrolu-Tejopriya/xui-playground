@@ -16,7 +16,8 @@ XUI ships its accumulated corrections inside the package:
 node_modules/@koinx/xui/.claude/learnings/
 ```
 
-Six short files. **Read them before you start.** They hold what previous sessions
+Short files, one per topic — or call the `get_xui_learnings` MCP tool, which
+returns the same thing. **Read them before you start.** They hold what previous sessions
 were told and are the part that is *not* derivable from the code — an
 `owner-correction` in there is settled, and relitigating it is how the same
 argument gets had twice.
@@ -101,9 +102,11 @@ import { Button, Badge, Table, Select } from '@koinx/xui';
   will fail you.
 - **Never hand-write an `<svg>` for an icon.** `npx xui-find-icon "<what you
   mean>"` searches all 275 by meaning and prints the import.
-- **Check a component exists before building one.** The `find_xui_icon` and
-  `list_xui_components` MCP tools read the real contract; `xui.manifest.json`
-  ships in the package if MCP is not configured.
+- **Check a component exists before building one.** The `xui` MCP server is
+  configured in this repo (`.mcp.json`, `.cursor/mcp.json`,
+  `.codex/config.toml`): `list_xui_components`, `get_xui_component` and
+  `find_xui_icon` read the real contract. If the user declined the server,
+  `node_modules/@koinx/xui/xui.manifest.json` is the same data.
 
 A prototype that reinvents what the system already has is worse than no
 prototype: it looks like a design decision when it is an accident.

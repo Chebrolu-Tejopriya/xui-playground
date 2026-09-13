@@ -1,0 +1,7 @@
+# XUI's MCP server, for Codex. Codex reads a project's .codex/config.toml only
+# once you trust the project. Same server as .mcp.json (Claude Code) and
+# .cursor/mcp.json (Cursor), run from the installed package, so it answers for
+# the exact XUI version this Playground is pinned to.
+[mcp_servers.xui]
+command = "node"
+args = ["node_modules/@koinx/xui/mcp/server.mjs"]

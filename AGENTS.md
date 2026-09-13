@@ -3,9 +3,9 @@
 Prototypes built on the KoinX design system. One shared repo, a folder per
 person, deployed at <https://xui-playground.vercel.app>.
 
-**Read `node_modules/@koinx/xui/.claude/learnings/` before writing any UI here.**
-Six short files that ship with the design system, holding what previous sessions
-were told — which component to reach for, what not to build, and the traps. They
+**Read `node_modules/@koinx/xui/.claude/learnings/` before writing any UI here**
+(or call the `get_xui_learnings` tool). Short files that ship with the design
+system, holding what previous sessions were told — which component to reach for, what not to build, and the traps. They
 are the part that is not derivable from the code.
 
 Then read the `building-demos` skill in `.claude/skills/`, which covers where a
@@ -27,6 +27,18 @@ moment its folder exists.
 KoinX sidebar with that one item selected, and your screen in the main column.
 The demo then renders only the page: no AppShell, no Sidebar, no logo of its own.
 Start from `src/demos/examples/empty-page/`.
+
+## The MCP server
+
+XUI's own MCP server is already configured — `.mcp.json` for Claude Code,
+`.cursor/mcp.json` for Cursor, `.codex/config.toml` for Codex. The first time,
+your tool asks whether to allow the `xui` server: say yes. It runs from the
+installed package, so it answers for the exact XUI this Playground is pinned to.
+
+Use it instead of guessing: `list_xui_components` before building anything,
+`get_xui_component` before using one, `find_xui_icon` for icons,
+`get_xui_tokens` instead of picking a colour, `get_xui_learnings` for what
+earlier sessions were corrected on.
 
 ## The commands
 

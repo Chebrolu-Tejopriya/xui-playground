@@ -1,17 +1,18 @@
 node_modules
 dist
 
-# Jetro's installer writes agent config into every project it touches. Same
-# reason it is ignored in the xui repo: machine-specific paths, and six copies
-# of a blurb about a finance platform that has nothing to do with this.
-.mcp.json
-.cursor/
-.codex/
-.agents/
+# The Jetro VS Code extension used to write agent config into every folder it
+# opened, overwriting whatever was there. It was uninstalled on 2026-09-13 and
+# these are OURS now, and tracked: CLAUDE.md (imports AGENTS.md, which Claude
+# Code never reads on its own), and XUI's MCP server in .mcp.json (Claude
+# Code), .cursor/mcp.json (Cursor) and .codex/config.toml (Codex).
+#
+# Jetro's other file names stay ignored, so a machine that still has it cannot
+# commit them by accident. AGENT.md is Jetro's; AGENTS.md (plural) is ours.
 .windsurfrules
-# AGENT.md is Jetro's; AGENTS.md (plural) is ours and IS tracked.
 AGENT.md
-CLAUDE.md
+.cursor/rules/agent.mdc
+.agents/rules/
 .github/copilot-instructions.md
 
 # Vercel
