@@ -5,3 +5,32 @@
 [mcp_servers.xui]
 command = "node"
 args = ["node_modules/@koinx/xui/mcp/server.mjs"]
+
+# Pre-approved: every tool only reads. Without this, clicking "always allow" in
+# Codex writes the approval into this file - which is committed - and leaves
+# the working tree dirty. Same list as xui's own .codex/config.toml, which is
+# generated from the server; if XUI gains a tool, add it here too.
+
+[mcp_servers.xui.tools.list_xui_components]
+approval_mode = "approve"
+
+[mcp_servers.xui.tools.get_xui_component]
+approval_mode = "approve"
+
+[mcp_servers.xui.tools.get_xui_tokens]
+approval_mode = "approve"
+
+[mcp_servers.xui.tools.find_xui_icon]
+approval_mode = "approve"
+
+[mcp_servers.xui.tools.get_xui_status]
+approval_mode = "approve"
+
+[mcp_servers.xui.tools.get_xui_learnings]
+approval_mode = "approve"
+
+[mcp_servers.xui.tools.figma_to_xui]
+approval_mode = "approve"
+
+[mcp_servers.xui.tools.get_xui_guidelines]
+approval_mode = "approve"
