@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "installCommand": "npm ci",
+  "installCommand": "rm -rf node_modules/@koinx node_modules/.package-lock.json && npm install",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
