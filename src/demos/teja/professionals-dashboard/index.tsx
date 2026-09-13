@@ -22,7 +22,7 @@ import {
   Sidebar, SidebarHeader, SidebarNav, SidebarFooter, SidebarItem,
   Button, Badge, Input, Select, Tabs, Checkbox, Pagination,
   Table, TableHead, TableBody, TableRow, TableCell, TableHeaderCell, PriorityMeter,
-  KoinXWordmark, KoinXMark,
+  KoinXProfessionalsWordmark, KoinXMark,
   OverviewIcon, UserGroupIcon, TaxesIcon, BubbleIcon, CallIcon, RulesIcon,
   WarningAlertIcon, AddUserIcon, ActionsIcon, CloseIcon,
 } from '@koinx/xui';
@@ -75,7 +75,7 @@ export default function App() {
   return (
     <AppShell style={{ height: '100vh' }}>
       <Sidebar collapsed={collapsed} onToggleCollapsed={() => setCollapsed((c) => !c)}>
-        <SidebarHeader>{collapsed ? <KoinXMark /> : <KoinXWordmark />}</SidebarHeader>
+        <SidebarHeader>{collapsed ? <KoinXMark /> : <KoinXProfessionalsWordmark />}</SidebarHeader>
 
         {!collapsed && (
           <div style={{ padding: '0 var(--spacing-12) var(--spacing-8)' }}>

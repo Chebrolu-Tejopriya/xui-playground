@@ -84,7 +84,7 @@ import {
   TableRow,
   TableCell,
   TableHeaderCell,
-  KoinXWordmark,
+  KoinXLogo,
   KoinXMark,
   OverviewIcon,
   PortfolioIcon,
@@ -203,7 +203,7 @@ export default function BulkEditTransactions() {
     <AppShell style={{ height: '100vh' }}>
       <Sidebar>
         <SidebarHeader>
-          <KoinXWordmark />
+          <KoinXLogo />
         </SidebarHeader>
         <SidebarNav>
           {NAV.map((n) => (

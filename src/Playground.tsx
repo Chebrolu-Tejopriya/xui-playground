@@ -9,8 +9,11 @@ import {
   SidebarHeader,
   SidebarNav,
   SidebarItem,
-  KoinXWordmark,
+  KoinXLogo,
   KoinXMark,
+  KoinXBooksWordmark,
+  KoinXTaxesWordmark,
+  KoinXProfessionalsWordmark,
 } from '@koinx/xui';
 import { demos, owners, countsByPlatform } from './demos/registry';
 import type { Demo } from './demos/registry';
@@ -187,13 +190,21 @@ function PhoneFrame({ demo, theme }: { demo: Demo; theme: Theme }) {
  * does not escape its parent — so thumbnails render it too, and the card in
  * the gallery shows the screen in the product rather than without it.
  */
+/** A product's own lockup when the demo names one; the plain KoinX logo when not. */
+const LOGO = {
+  books: KoinXBooksWordmark,
+  taxes: KoinXTaxesWordmark,
+  professionals: KoinXProfessionalsWordmark,
+} as const;
+
 function ProductFrame({ demo }: { demo: Demo }) {
   const [collapsed, setCollapsed] = useState(false);
   const nav = demo.nav!;
+  const Logo = nav.product ? LOGO[nav.product] : KoinXLogo;
   return (
     <AppShell style={{ height: '100vh' }}>
       <XuiSidebar collapsed={collapsed} onToggleCollapsed={() => setCollapsed((c) => !c)}>
-        <SidebarHeader>{collapsed ? <KoinXMark /> : <KoinXWordmark />}</SidebarHeader>
+        <SidebarHeader>{collapsed ? <KoinXMark /> : <Logo />}</SidebarHeader>
         <SidebarNav>
           <SidebarItem icon={nav.icon} label={nav.item} selected />
         </SidebarNav>

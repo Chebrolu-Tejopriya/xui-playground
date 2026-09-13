@@ -35,5 +35,13 @@ export interface DemoMeta {
     item: string;
     /** An Icons v2 component, passed as the component itself, not an element. */
     icon: ComponentType<IconProps>;
+    /**
+     * Which KoinX product the screen belongs to, and so which logo heads the
+     * sidebar. Leave it out unless the requirement says: the plain KoinX logo
+     * is the default, and a product logo on a screen that is not that product
+     * is a claim nobody made. `'books'` is not the default just because it was
+     * the first lockup XUI had.
+     */
+    product?: 'books' | 'taxes' | 'professionals';
   };
 }

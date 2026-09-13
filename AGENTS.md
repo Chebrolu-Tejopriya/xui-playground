@@ -25,6 +25,8 @@ moment its folder exists.
 **A web screen goes inside KoinX, not on a blank page.** Set `nav` in `meta.ts` —
 `{ item: 'Transactions', icon: TransactionsIcon }` — and the Playground draws the
 KoinX sidebar with that one item selected, and your screen in the main column.
+The sidebar shows the plain KoinX logo; add `product: 'books' | 'taxes' |
+'professionals'` only when the requirement says which product it is.
 The demo then renders only the page: no AppShell, no Sidebar, no logo of its own.
 Start from `src/demos/examples/empty-page/`.
 

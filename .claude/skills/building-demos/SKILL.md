@@ -75,6 +75,19 @@ returns **only the page**:
 - no `min-height: 100vh` or centring the whole page — you are in a column now
 - no fake extra nav items to make it look fuller; one item is the point
 
+**The logo is the plain KoinX logo** unless the requirement names a product.
+Then say which, and the frame uses that product's lockup:
+
+```ts
+nav: { item: 'Dashboard', icon: OverviewIcon, product: 'professionals' },
+```
+
+Work out where the requirement comes from — a KoinX Books brief, a Taxes one, a
+Professionals one. If it does not say, leave `product` out. Books is not the
+default; it was only the first lockup XUI had, and putting it on a screen that
+is not Books is a claim nobody made. The same goes for a demo that builds its
+own sidebar: `KoinXLogo` unless the product is known.
+
 Name the item after where the screen lives in KoinX, and pick its icon with
 `npx xui-find-icon "<section>"` — Icons v2's *Navigation & Sections* set is drawn
 for exactly this: Overview, Portfolio, Transactions, Wallets, Taxes, and more.
