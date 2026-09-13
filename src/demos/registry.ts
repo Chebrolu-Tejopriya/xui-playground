@@ -2,7 +2,7 @@
  * Every demo in this repo, discovered — never listed by hand.
  *
  * Vite's `import.meta.glob` walks `src/demos/<owner>/<slug>/` at build time, so
- * a demo is in the console the moment its folder exists. Nobody has to remember
+ * a demo is in the Playground the moment its folder exists. Nobody has to remember
  * to register it, and nobody can forget to remove it.
  *
  * That is the same rule XUI's visual suite follows (it reads Storybook's own
@@ -29,7 +29,7 @@ export interface Demo extends DemoMeta {
   updated?: string;
   /**
    * A slug starting with `_` is private: .gitignore hides the folder, so it
-   * renders in YOUR console and can never be committed, shared or deployed.
+   * renders in YOUR Playground and can never be committed, shared or deployed.
    * Rename it without the underscore to publish it.
    */
   isPrivate: boolean;

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Move the Console onto the latest XUI.
+// Move the Playground onto the latest XUI.
 //
 // The dependency is `git+https://github.com/Chebrolu-Tejopriya/xui.git`, which
 // looks like it tracks main and does not: npm records the exact commit it

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Put your work on the Console, where the team can see it.
+// Put your work on the Playground, where the team can see it.
 //
 // This is the step that was missing. A designer could build a demo and it would
 // sit on their laptop forever, because publishing it meant `git add`, `git
@@ -11,7 +11,7 @@
 //   - It stages ONLY src/demos, package.json and package-lock.json. Never
 //     `git add -A`: that staged a credentials file in this very repo an hour
 //     after the note warning about it was written.
-//   - It refuses if the only changes are outside src/demos. Editing the console
+//   - It refuses if the only changes are outside src/demos. Editing the Playground
 //     itself is engineering work and should go through a normal commit, not a
 //     button meant for publishing a prototype.
 //   - It pulls with --rebase before pushing, so two designers sharing at the
@@ -75,12 +75,12 @@ if (!mine.length) {
   if (other.length) {
     stop(
       'Nothing changed under src/demos — nothing to share.',
-      `You have changed ${other.length} other file(s). Those are console changes rather than a\n` +
+      `You have changed ${other.length} other file(s). Those are Playground changes rather than a\n` +
         `  demo, so commit them normally rather than with share.`,
     );
   }
   // Not an error: they may have already shared and just want the link.
-  console.log(`  ${C.d}Nothing new to share. Everything is already on the Console.${C.x}`);
+  console.log(`  ${C.d}Nothing new to share. Everything is already on the Playground.${C.x}`);
   console.log(`\n  ${SITE}\n`);
   console.log(`  ${C.d}Working on a demo whose folder starts with _ ? That one is private${C.x}`);
   console.log(`  ${C.d}on purpose - rename it without the underscore to publish it.${C.x}`);
@@ -100,7 +100,7 @@ if (held.length) {
 }
 if (other.length) {
   console.log(`\n  ${C.y}Leaving ${other.length} other changed file(s) alone${C.x}`);
-  console.log(`  ${C.d}share only publishes demos; commit console changes yourself.${C.x}`);
+  console.log(`  ${C.d}share only publishes demos; commit Playground changes yourself.${C.x}`);
 }
 
 /* ---- commit, rebase, push -------------------------------------------------- */

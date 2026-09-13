@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// First-run setup for the Console. The designer does nothing; this does it.
+// First-run setup for the Playground. The designer does nothing; this does it.
 //
 // This is the entry point for someone who wants to BUILD something. The xui
 // repo has its own setup for people working on the design system itself, but a
@@ -44,7 +44,7 @@ const ask = async (q) => {
 };
 
 console.log(`
-${C.b}  Console — first-run setup${C.x}
+${C.b}  Playground — first-run setup${C.x}
   ${C.d}Prototypes built with XUI · this window does the work${C.x}
 `);
 
@@ -115,9 +115,9 @@ if (problems.length) {
 }
 
 console.log(`\n${C.g}${C.b}  Ready.${C.x}\n`);
-console.log(`  Go back to your AI assistant and say:  ${C.b}"Setup is done, start the console"${C.x}\n`);
+console.log(`  Go back to your AI assistant and say:  ${C.b}"Setup is done, start the Playground"${C.x}\n`);
 console.log(`  ${C.d}Your demos live in  src/demos/${slug}/<name>/  — the assistant will make them.${C.x}`);
 console.log(`  ${C.d}When you want the team to see one, say "share my work".${C.x}\n`);
 console.log(`  ${C.d}Typing it yourself instead:${C.x}`);
-console.log(`  ${C.d}  npm run dev      the console, on http://localhost:5174${C.x}`);
+console.log(`  ${C.d}  npm run dev      the Playground, on http://localhost:5174${C.x}`);
 console.log(`  ${C.d}  npm run share    publish to https://xui-playground.vercel.app${C.x}\n`);

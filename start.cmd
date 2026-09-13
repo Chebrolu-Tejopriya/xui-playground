@@ -1,5 +1,5 @@
 @echo off
-REM Double-click this. It sets the Console up on Windows.
+REM Double-click this. It sets the Playground up on Windows.
 REM
 REM The counterpart to start.command on macOS. Opening a terminal and knowing
 REM what to type in it is the real barrier for a designer, so this removes both.

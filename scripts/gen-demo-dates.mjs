@@ -1,6 +1,6 @@
 // When was each demo last touched? Ask git, not a person.
 //
-// The console shows "7d ago" on every card. A hand-typed date is wrong the day
+// The Playground shows "7d ago" on every card. A hand-typed date is wrong the day
 // after it is typed and nobody ever notices, so this reads the last commit that
 // touched each demo folder and writes src/demos/dates.generated.json.
 //

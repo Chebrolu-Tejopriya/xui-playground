@@ -4,7 +4,7 @@ import { demos, owners, countsByPlatform } from './demos/registry';
 import type { Demo } from './demos/registry';
 
 /**
- * The console: every prototype in this repo, in one place.
+ * The Playground: every prototype in this repo, in one place.
  *
  * Built out of XUI, because a prototyping surface that does not use the design
  * system is the first place drift starts. The only raw values here are layout
@@ -13,7 +13,7 @@ import type { Demo } from './demos/registry';
  * A demo renders in an <iframe> at its own URL rather than inline. Three
  * reasons, and the third is the one that matters:
  *   - a mobile demo gets a real 390px viewport instead of a CSS-scaled lie
- *   - a demo cannot leak global styles into the console or its neighbours
+ *   - a demo cannot leak global styles into the Playground or its neighbours
  *   - a demo that throws takes down its own frame, not the whole gallery
  */
 
@@ -49,7 +49,7 @@ const shell = {
  */
 type Theme = 'light' | 'dark';
 
-const KEY = 'xui-console-theme';
+const KEY = 'xui-playground-theme';
 
 function useTheme(): [Theme, () => void] {
   const [theme, setTheme] = useState<Theme>(() => {
@@ -476,7 +476,7 @@ function Sidebar({ isGallery }: { isGallery: boolean }) {
           marginBottom: 'var(--spacing-24)',
         }}
       >
-        Console
+        Playground
       </div>
       <a href="?" aria-current={isGallery ? 'page' : undefined} style={isGallery ? linkActive : linkStyle}>
         All demos
@@ -511,7 +511,7 @@ const linkActive = {
 
 /* ---- entry ---------------------------------------------------------------- */
 
-export default function Console() {
+export default function Playground() {
   // Applies `data-theme` on mount, reading ?theme= first — which is how a demo
   // rendered inside a thumbnail iframe inherits the gallery's theme.
   const [theme, toggleTheme] = useTheme();

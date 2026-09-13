@@ -1,11 +1,11 @@
 ---
 name: building-demos
-description: Build a prototype in the Console using XUI — where a demo lives, which component to reach for, how to find an icon, and how to publish it. Use whenever someone wants to build, change or share a screen, flow, page or prototype here; when they ask "how do I make a demo", "build me a screen", "add a page"; or before writing any UI in this repo at all.
+description: Build a prototype in the Playground using XUI — where a demo lives, which component to reach for, how to find an icon, and how to publish it. Use whenever someone wants to build, change or share a screen, flow, page or prototype here; when they ask "how do I make a demo", "build me a screen", "add a page"; or before writing any UI in this repo at all.
 ---
 
 # Building demos
 
-This is the Console: prototypes built on XUI, one shared repo, a folder per
+This is the Playground: prototypes built on XUI, one shared repo, a folder per
 person. **Read this before writing any UI here.**
 
 ## First — read what XUI already taught us
@@ -43,7 +43,7 @@ src/demos/<your-name>/<demo-slug>/
 `<your-name>` is the person's own folder — lowercase, hyphenated. Take it from
 `git config user.name` rather than asking; setup put it there for this.
 
-Nothing registers a demo. The console discovers it from the filesystem, so it
+Nothing registers a demo. The Playground discovers it from the filesystem, so it
 appears the moment the folder exists.
 
 ## Building it
@@ -77,13 +77,13 @@ Commits their demo, pulls in everyone else's work, pushes, and prints the live
 URL. They do **not** need to know git — that is the entire point of the command.
 
 It refuses if the only changes are outside `src/demos`, because changing the
-console itself is engineering work and wants a real commit.
+Playground itself is engineering work and wants a real commit.
 
 ## Two things that confuse people
 
 **A local XUI edit shows here and not on the website.** If the xui repo is
 sitting next door, this app reads its source directly — so an edit appears
-instantly in a prototype, but the deployed Console installs the real pinned
+instantly in a prototype, but the deployed Playground installs the real pinned
 package. When someone says their demo "looks wrong on the site", check
 `git status` in the xui folder first. See `gotchas.md` in the shipped learnings.
 

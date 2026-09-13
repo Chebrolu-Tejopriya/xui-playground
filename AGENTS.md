@@ -1,4 +1,4 @@
-# The Console
+# The Playground
 
 Prototypes built on the KoinX design system. One shared repo, a folder per
 person, deployed at <https://xui-playground.vercel.app>.
@@ -19,13 +19,13 @@ src/demos/<person>/<slug>/
   index.tsx    the demo
 ```
 
-Discovered from the filesystem, never registered. A demo is in the console the
+Discovered from the filesystem, never registered. A demo is in the Playground the
 moment its folder exists.
 
 ## The commands
 
 ```bash
-npm run dev          the console, on :5174
+npm run dev          the Playground, on :5174
 npm run share        publish a demo — commits, pulls, pushes, prints the URL
 npm run lint:tokens  XUI's own linter, run against this repo
 npm run update-xui   move the deployed version onto the latest XUI

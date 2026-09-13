@@ -1,5 +1,5 @@
 #!/bin/bash
-# Double-click this. It sets the Console up on a Mac.
+# Double-click this. It sets the Playground up on a Mac.
 #
 # Why a .command file: it opens in Terminal.app when double-clicked, which is
 # the difference between "a designer can start" and "a designer files a ticket".
