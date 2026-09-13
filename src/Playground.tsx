@@ -14,6 +14,9 @@ import {
   KoinXBooksWordmark,
   KoinXTaxesWordmark,
   KoinXProfessionalsWordmark,
+  Input,
+  Select,
+  SearchIcon,
 } from '@koinx/xui';
 import { demos, owners, countsByPlatform } from './demos/registry';
 import type { Demo } from './demos/registry';
@@ -474,22 +477,30 @@ function Gallery({ theme, toggleTheme }: { theme: Theme; toggleTheme: () => void
             ))}
           </div>
 
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search demos…"
-            style={{ ...control, cursor: 'text', flex: '1 1 200px', maxWidth: 280 }}
-          />
+          {/* XUI's Input and Select, at the filter-bar sizes XUI defines for
+              exactly this row: Input `small` is 44, level with Select's
+              default 44. The grid wrapper only makes the Input fill its slot -
+              its root is inline-flex and takes no style prop. */}
+          <div style={{ display: 'grid', flex: '1 1 200px', maxWidth: 280 }}>
+            <Input
+              size="small"
+              leading={<SearchIcon size={20} />}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search demos…"
+              aria-label="Search demos"
+            />
+          </div>
 
           {owners.length > 1 && (
-            <select value={owner} onChange={(e) => setOwner(e.target.value)} style={control}>
-              <option value="all">All designers</option>
-              {owners.map((o) => (
-                <option key={o} value={o}>
-                  {o}
-                </option>
-              ))}
-            </select>
+            <Select
+              options={[
+                { value: 'all', label: 'All designers' },
+                ...owners.map((o) => ({ value: o, label: o })),
+              ]}
+              value={owner}
+              onChange={setOwner}
+            />
           )}
         </div>
 
