@@ -303,11 +303,6 @@ function Card({ demo, theme }: { demo: Demo; theme: Theme }) {
           <span style={{ font: 'var(--type-subtitle-2)', color: 'var(--content-primary)' }}>
             {demo.title}
           </span>
-          {demo.updated && (
-            <span style={{ font: 'var(--type-body-3)', color: 'var(--content-tertiary)' }}>
-              {demo.updated}
-            </span>
-          )}
         </div>
         {demo.note && (
           <p
