@@ -12,7 +12,7 @@
  *   src/demos/<owner>/<slug>/meta.ts     title + platform, eagerly loaded
  *   src/demos/<owner>/<slug>/index.tsx   the demo, loaded only when opened
  *
- * `owner` is the folder name. `updated` comes from git via
+ * `owner` is the folder name. `updated` and `updatedAt` come from git via
  * `scripts/gen-demo-dates.mjs`; if that has not run, the field is simply
  * absent and the card omits it rather than showing a wrong date.
  */
@@ -27,6 +27,8 @@ export interface Demo extends DemoMeta {
   slug: string;
   /** Relative, e.g. "3 days ago". Absent when git has not been read. */
   updated?: string;
+  /** Unix timestamp from the last commit touching this demo. */
+  updatedAt?: number;
   /**
    * A slug starting with `_` is private: .gitignore hides the folder, so it
    * renders in YOUR Playground and can never be committed, shared or deployed.
@@ -64,11 +66,17 @@ export const demos: Demo[] = Object.entries(metaModules)
       slug,
       ...mod.default,
       isPrivate: slug.startsWith('_'),
-      updated: (dates as Record<string, string>)[id],
+      ...(dates as Record<string, { updated: string; updatedAt: number }>)[id],
       load: loader,
     };
   })
-  .sort((a, b) => a.title.localeCompare(b.title));
+  .sort((a, b) => {
+    // A demo without a commit date is usually a new local draft. Keep drafts
+    // first while preserving title order among demos with the same freshness.
+    if (a.updatedAt === undefined && b.updatedAt !== undefined) return -1;
+    if (a.updatedAt !== undefined && b.updatedAt === undefined) return 1;
+    return (b.updatedAt ?? 0) - (a.updatedAt ?? 0) || a.title.localeCompare(b.title);
+  });
 
 export const owners = [...new Set(demos.map((d) => d.owner))].sort();
 

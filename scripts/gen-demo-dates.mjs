@@ -29,15 +29,21 @@ if (fs.existsSync(demosDir)) {
       if (!slug.isDirectory()) continue;
       const rel = `src/demos/${owner.name}/${slug.name}`;
       try {
-        // %ar is git's own relative format - "3 days ago", "2 months ago".
-        const when = execSync(`git log -1 --format=%ar -- "${rel}"`, {
+        // Keep both a display label and a numeric timestamp. Relative labels
+        // are useful in the UI, while timestamps give the gallery a stable,
+        // accurate newest-first sort.
+        const result = execSync(`git log -1 --format=%ar%x09%ct -- "${rel}"`, {
           cwd: root,
           stdio: ['ignore', 'pipe', 'ignore'],
         })
           .toString()
           .trim();
-        if (when) {
-          dates[`${owner.name}/${slug.name}`] = when;
+        if (result) {
+          const [updated, timestamp] = result.split('\t');
+          dates[`${owner.name}/${slug.name}`] = {
+            updated,
+            updatedAt: Number(timestamp),
+          };
           gitWorked = true;
         }
       } catch {
