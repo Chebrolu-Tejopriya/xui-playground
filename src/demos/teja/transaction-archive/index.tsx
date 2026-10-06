@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   AIIcon,
   AddPlusIcon,
@@ -18,6 +18,7 @@ import {
   SendIcon,
   SwapIcon,
   Tabs,
+  Toast,
   TradeIcon,
 } from '@koinx/xui';
 import binanceLogo from './binance-logo.png';
@@ -94,6 +95,13 @@ export default function TransactionArchive() {
   const [detailTab, setDetailTab] = useState('details');
   const [pendingIds, setPendingIds] = useState<string[]>([]);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [toast, setToast] = useState<{ title: string; subtitle: string } | null>(null);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timeout = window.setTimeout(() => setToast(null), 3500);
+    return () => window.clearTimeout(timeout);
+  }, [toast]);
 
   const visibleTransactions = useMemo(
     () => transactions.filter((transaction) => transaction.archived === (view === 'archived')),
@@ -114,6 +122,10 @@ export default function TransactionArchive() {
     window.localStorage.setItem(ARCHIVED_COUNT_KEY, String(updatedCount));
     setSelected((current) => current.filter((id) => !ids.has(id)));
     setConfirmOpen(false);
+    setToast({
+      title: ids.size === 1 ? 'Transaction archived' : `${ids.size} transactions archived`,
+      subtitle: 'Excluded from tax calculations and portfolio.',
+    });
   }
 
   function unarchive(id: string) {
@@ -121,6 +133,10 @@ export default function TransactionArchive() {
     setTransactions((current) => current.map((transaction) => transaction.id === id ? { ...transaction, archived: false } : transaction));
     setArchivedCount(updatedCount);
     window.localStorage.setItem(ARCHIVED_COUNT_KEY, String(updatedCount));
+    setToast({
+      title: 'Transaction unarchived',
+      subtitle: 'Included again in tax calculations and portfolio.',
+    });
   }
 
   function setTransactionView(value: 'active' | 'archived') {
@@ -135,6 +151,16 @@ export default function TransactionArchive() {
 
   return (
     <main className="txn-page">
+      {toast && (
+        <Toast
+          className="txn-action-toast"
+          variant="success"
+          title={toast.title}
+          subtitle={toast.subtitle}
+          dismissible
+          onDismiss={() => setToast(null)}
+        />
+      )}
       <header className="txn-header">
         <h1>Transactions</h1>
         <div className="txn-header-actions">

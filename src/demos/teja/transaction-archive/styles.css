@@ -9,6 +9,14 @@
   color: var(--content-primary);
 }
 
+.txn-action-toast {
+  position: fixed;
+  z-index: 1000;
+  inset-inline-end: var(--spacing-24);
+  inset-block-end: var(--spacing-24);
+  box-sizing: border-box;
+}
+
 .txn-header,
 .txn-header-actions,
 .txn-ai-prompt,
@@ -183,6 +191,12 @@
 }
 
 @media (max-width: 800px) {
+  .txn-action-toast {
+    inset-inline: var(--spacing-16);
+    inset-block-end: var(--spacing-16);
+    width: auto;
+    max-width: none;
+  }
   .txn-page { padding: var(--spacing-16); }
   .txn-header { flex-wrap: wrap; }
   .txn-header-actions { margin-left: 0; }
