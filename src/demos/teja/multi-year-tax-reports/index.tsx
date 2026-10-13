@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Badge, Button, Checkbox, Dialog, Drawer, Input, Radio, Select, Tabs, ArrowForwardIcon, CheckIcon, InfoIcon } from '@koinx/xui';
+import { Badge, Button, Checkbox, Dialog, Drawer, Input, Radio, Select, Tabs, ArrowForwardIcon, CheckIcon, InfoIcon, PercentageIcon } from '@koinx/xui';
 import './styles.css';
 
 // Illustrative service fixture only. Production must supply plans, caps, discounts,
@@ -15,6 +15,8 @@ function quote(term: number, year: number, coupon: boolean, xp: boolean, extra: 
 }
 const scenarios = [ ['eligible', 'Eligible user'], ['ineligible', 'Outside experiment'], ['conflict', 'Final future year already covered'], ['pricing-error', 'Pricing unavailable'], ['payment-error', 'Payment fails'], ['price-change', 'Price changes at checkout'], ['pending', 'Payment received · coverage pending'] ].map(([value, label]) => ({ value, label }));
 export default function MultiYearTaxReports({ mobile = false }: { mobile?: boolean }) {
+  const [savingsOpen, setSavingsOpen] = useState(false);
+  const savingsAfterQuote = useRef<number | null>(null);
   const [upsellOpen, setUpsellOpen] = useState(false);
   const [upsellTerm, setUpsellTerm] = useState(2);
   const continueAfterQuote = useRef(false);
@@ -49,7 +51,21 @@ export default function MultiYearTaxReports({ mobile = false }: { mobile?: boole
     return () => window.clearTimeout(timer);
   }, [term, year, coupon, xp, extra, scenario, retry]);
   useEffect(() => () => { couponRequest.current++; checkoutRequest.current++; }, []);
+  function selectTerm(next: number) {
+    if (next === term) return;
+    setSavingsOpen(false);
+    savingsAfterQuote.current = next > 1 ? next : null;
+    setTerm(next);
+  }
+  useEffect(() => {
+    if (savingsAfterQuote.current !== null && pricing === 'ready' && accepted?.term === savingsAfterQuote.current && accepted.term === term) {
+      savingsAfterQuote.current = null;
+      setSavingsOpen(true);
+    }
+    if (pricing === 'error') savingsAfterQuote.current = null;
+  }, [accepted, pricing, term]);
   function changeScenario(value: string) {
+    setSavingsOpen(false); savingsAfterQuote.current = null;
     setScenario(value); setCheckout('idle'); setConfirm(false); setUpsellOpen(false); continueAfterQuote.current = false; upsellSeen.current = false;
     if (value === 'ineligible' || (value === 'conflict' && term === 3)) setTerm(1);
   }
@@ -107,21 +123,21 @@ export default function MultiYearTaxReports({ mobile = false }: { mobile?: boole
         const preview = quote(n, year, coupon, xp, extra);
         const ready = pricing === 'ready';
         return <article className={'mytax-plan-card ' + (n === term ? 'is-selected ' : '') + (n === 3 ? 'best-value' : '')} key={n}>
-          <div className="mytax-card-top"><Radio name="tax-term-v2" checked={term === n} onChange={() => setTerm(n)} label={<strong>{n} {n === 1 ? 'year' : 'years'}</strong>} />{n === 3 && <Badge variant="label-positive">Largest savings</Badge>}</div>
+          <div className="mytax-card-top"><Radio name="tax-term-v2" checked={term === n} onChange={() => selectTerm(n)} label={<strong>{n} {n === 1 ? 'year' : 'years'}</strong>} />{n === 3 && <Badge variant="label-positive">Largest savings</Badge>}</div>
           <p className="mytax-card-years">{Array.from({length:n}, (_,i) => 'FY ' + (year+i)).join(' + ')}</p>
           <div className="mytax-card-price">{ready ? money(preview.total + (n === term && revised ? 100 : 0)) : 'Updating…'}<span>paid once · before taxes</span></div>
           <div className="mytax-card-benefit">{n > 1 ? <><strong>{ready ? 'Save ' + money(preview.savings) : 'Calculating savings…'}</strong><span>{fixture.discounts[n]}% off each future year</span></> : <><strong>This year only</strong><span>Get your current tax report</span></>}</div>
           <div className="mytax-card-breakdown"><div><span>FY {year}</span><strong>{ready ? money(preview.current) : '—'}</strong></div>{Array.from({length:n-1},(_,i)=><div key={i}><span>FY {year+i+1}</span><strong>{ready ? money(preview.future) : '—'}</strong></div>)}</div>
           <p className="mytax-card-cap">{n > 1 ? 'Each future year includes up to ' + fixture.cap.toLocaleString() + ' transactions.' : 'Covers your current-year transactions.'}</p>
-          <Button fullWidth variant={term === n ? 'primary' : 'outline'} disabled={controlsDisabled} onClick={() => setTerm(n)}>{term === n ? 'Selected · ' : 'Choose '}{n} {n === 1 ? 'year' : 'years'}</Button>
+          <Button fullWidth variant={term === n ? 'primary' : 'outline'} disabled={controlsDisabled} onClick={() => selectTerm(n)}>{term === n ? 'Selected · ' : 'Choose '}{n} {n === 1 ? 'year' : 'years'}</Button>
         </article>;
       })}</fieldset><p className="mytax-note"><InfoIcon size={18} />Future-year extra transactions are charged separately when needed.</p>{scenario === 'conflict' && <p className="mytax-note">FY {year + 2} already has a plan. A 3-year purchase is unavailable.</p>}</section>}
       {eligible && version === 'v3' && <section className="mytax-compact-choice"><div className="mytax-section-heading"><h2>Choose your coverage</h2><span>Pay once · no auto-renewal</span></div><fieldset className="mytax-compact-terms" disabled={controlsDisabled}><legend className="mytax-sr">Plan term</legend>{[1,2,3].filter(n=>scenario !== 'conflict' || n !== 3).map(n=>{
         const preview=quote(n,year,coupon,xp,extra);
-        return <div className={'mytax-compact-option '+(term===n?'is-selected':'')} key={n}><Radio name="tax-term-v3" checked={term===n} onChange={()=>setTerm(n)} label={<span className="mytax-compact-label"><strong>{n} {n===1?'year':'years'}</strong><span>{pricing==='ready'?money(preview.total+(n===term&&revised?100:0)):'Updating…'}</span>{n>1?<Badge variant="label-positive">{pricing==='ready'?'Save '+money(preview.savings):'Updating…'}</Badge>:<span className="mytax-compact-single">This year only</span>}</span>} /></div>;
+        return <div className={'mytax-compact-option '+(term===n?'is-selected':'')} key={n}><Radio name="tax-term-v3" checked={term===n} onChange={()=>selectTerm(n)} label={<span className="mytax-compact-label"><strong>{n} {n===1?'year':'years'}</strong><span>{pricing==='ready'?money(preview.total+(n===term&&revised?100:0)):'Updating…'}</span>{n>1?<Badge variant="label-positive">{pricing==='ready'?'Save '+money(preview.savings):'Updating…'}</Badge>:<span className="mytax-compact-single">This year only</span>}</span>} /></div>;
       })}</fieldset><p className="mytax-note">Totals before taxes. {term>1?fixture.discounts[term]+'% off future-year base prices.':'Add future years to save on your next reports.'}</p>{scenario==='conflict'&&<p className="mytax-note">FY {year+2} already has a plan. A 3-year purchase is unavailable.</p>}</section>}
       {version==='v3'&&<section className="mytax-compact-coverage" aria-label="Selected coverage"><div className="mytax-section-heading"><h3>{term===1?'Your selected tax year':'Your selected tax years'}</h3><Badge variant="accent-primary">{term} {term===1?'year':'years'}</Badge></div><div className="mytax-coverage-strip">{years.map((y,i)=><div key={y}><strong>FY {y}</strong><span>{i?'Future report':'Current report'}</span><strong>{pricing==='ready'&&accepted?money(i?accepted.future:accepted.current):'Updating…'}</strong></div>)}</div>{term>1&&<p className="mytax-note">Each future year includes up to {fixture.cap.toLocaleString()} transactions. Extra transactions are separate.</p>}</section>}
-      {eligible && version === 'v1' && <section><div className="mytax-section-heading"><h2>Choose your plan term</h2><span>One payment. More years sorted.</span></div><fieldset className="mytax-terms" disabled={controlsDisabled}><legend className="mytax-sr">Plan term</legend>{[1, 2, 3].filter(n => scenario !== 'conflict' || n !== 3).map(n => <div className={'mytax-term ' + (term === n ? 'is-selected' : '')} key={n}><Radio name="tax-term" checked={term === n} onChange={() => setTerm(n)} label={<span className="mytax-term-label"><strong>{n} {n === 1 ? 'year' : 'years'}</strong>{n > 1 && <Badge variant="label-positive">{fixture.discounts[n]}% off future years</Badge>}</span>} /></div>)}</fieldset>{scenario === 'conflict' && <p className="mytax-note">FY {year + 2} already has a plan. A 3-year purchase is unavailable.</p>}</section>}
+      {eligible && version === 'v1' && <section><div className="mytax-section-heading"><h2>Choose your plan term</h2><span>One payment. More years sorted.</span></div><fieldset className="mytax-terms" disabled={controlsDisabled}><legend className="mytax-sr">Plan term</legend>{[1, 2, 3].filter(n => scenario !== 'conflict' || n !== 3).map(n => <div className={'mytax-term ' + (term === n ? 'is-selected' : '')} key={n}><Radio name="tax-term" checked={term === n} onChange={() => selectTerm(n)} label={<span className="mytax-term-label"><strong>{n} {n === 1 ? 'year' : 'years'}</strong>{n > 1 && <Badge variant="label-positive">{fixture.discounts[n]}% off future years</Badge>}</span>} /></div>)}</fieldset>{scenario === 'conflict' && <p className="mytax-note">FY {year + 2} already has a plan. A 3-year purchase is unavailable.</p>}</section>}
       {term > 1 && version === 'v1' && <section className="mytax-panel mytax-coverage"><div className="mytax-section-heading"><h2>Included through FY {year + term - 1}</h2><Badge variant="accent-primary">{term} tax years</Badge></div><div className="mytax-years">{years.map((y, i) => <article key={y} className="mytax-year-card"><p className="mytax-eyebrow">{i ? 'FUTURE YEAR' : 'CURRENT REPORT'}</p><h3>FY {y}</h3><p>{i ? 'Included in this purchase' : 'Filing this year'}</p><strong>{pricing === 'ready' && accepted ? money(i ? accepted.future : accepted.current) : 'Updating…'}</strong>{i > 0 && <p>{fixture.discounts[term]}% off · up to {fixture.cap.toLocaleString()} transactions</p>}</article>)}</div><p className="mytax-note"><InfoIcon size={18} />Each year has its own transaction cap. Future extra-transaction charges are not prepaid.</p></section>}
       <section className="mytax-report"><div><p className="mytax-eyebrow">CURRENT-YEAR REPORT</p><h2>Crypto Tax Report</h2><p>Covers {extra ? '1,200' : fixture.transactions} transactions · FY {year}</p></div><div className="mytax-report-price">{money(fixture.base)}<span>Base report price</span></div></section>
       <section className="mytax-panel"><h3>What’s included in your report</h3><div className="mytax-features">{['IRS Schedule D & Form 8949', 'TurboTax upload', 'Tax & PnL reports', 'PDF, CSV & Excel downloads'].map(label => <div key={label}><CheckIcon size={18} /><span>{label}</span></div>)}</div></section>
@@ -141,6 +157,9 @@ export default function MultiYearTaxReports({ mobile = false }: { mobile?: boole
       </Drawer>
     </>}
     {mobile ? <Drawer open={upsellOpen} onClose={()=>setUpsellOpen(false)} placement="bottom" title="Save on your next tax reports">{upsellContent}</Drawer> : <Dialog open={upsellOpen} onClose={()=>setUpsellOpen(false)} title="Save on your next tax reports" description="Add future years to this purchase and pay once." confirmLabel={'Get '+upsellTerm+' years · '+money(upsellQuote.total+(revised?100:0))} cancelLabel="Back to report" onConfirm={acceptUpsell}>{upsellContent}<Button className="mytax-upsell-decline" variant="outline" fullWidth onClick={declineUpsell}>Continue with 1 year · {money(payable)}</Button></Dialog>}
+    <Dialog open={savingsOpen && Boolean(accepted) && pricing === 'ready' && term > 1} onClose={()=>setSavingsOpen(false)} icon={<PercentageIcon />} title={accepted ? 'Save '+money(accepted.savings)+' with '+term+' years' : 'Multi-year savings'} description={fixture.discounts[term]+'% off '+(term===2?'your next tax year':'each of your next two tax years')+'. Included in your selected plan.'} confirmLabel="Continue with this plan" cancelLabel="Keep comparing" onConfirm={()=>setSavingsOpen(false)}>
+      <div className="mytax-savings-popup"><p>{years.map(y=>'FY '+y).join(' · ')}</p><div><span>Pay once today</span><strong>{money(payable)}</strong></div><p>Before applicable taxes. No automatic annual charges.</p></div>
+    </Dialog>
     <Dialog open={confirm} onClose={() => setConfirm(false)} title="Your quote has changed" description={'The demo payable increased by $1.00. Updated total: ' + money(payable + 100) + ' before taxes. Review the new amount before continuing.'} confirmLabel="Review updated quote" cancelLabel="Keep reviewing" onConfirm={() => { setRevised(true); setConfirm(false); }} />
   </div>;
 }
