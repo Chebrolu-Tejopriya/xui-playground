@@ -1,5 +1,5 @@
 export type Category = 'External deposits' | 'Staking rewards' | 'Income';
-export type Scenario = 'complete' | 'partial' | 'unmatched' | 'untraceable' | 'failed';
+export type Scenario = 'complete' | 'partial' | 'unmatched' | 'untraceable' | 'failed' | 'unconnected' | 'mixed';
 export type Transaction = { id: string; type: string; date: string; asset: string; amount: number; sent: string; wallet: string; network: string; share: number; children: string[]; category?: Category; paired?: string };
 const record = (id: string, type: string, date: string, asset: string, amount: number, sent: string, wallet: string, share: number, children: string[], category?: Category, paired?: string): Transaction => ({ id, type, date, asset, amount, sent, wallet, share, children, category, paired, network: wallet === 'CoinDCX' ? 'Exchange ledger' : 'Linea' });
 // Explicit attribution tree. Shares are percentages of the selected transaction,
@@ -29,6 +29,40 @@ export const date = (s: string) => new Date(s+'Z').toLocaleDateString('en-GB',{d
 export function level(id: string, at = selected.id, depth = 1): number { if(at===id)return depth; for(const child of byId[at].children){const found=level(id,child,depth+1);if(found)return found;}return 0; }
 export function origins(id: string): Transaction[] { const t=byId[id];return t.children.length?t.children.flatMap(origins):[t]; }
 export function isResolved(t: Transaction, scenario: Scenario) { return scenario==='complete'||(scenario==='partial'&&t.category!=='Income'); }
-export function summary(scenario: Scenario) { const leaves=origins(selected.id);const traced=leaves.filter(t=>isResolved(t,scenario)).reduce((n,t)=>n+t.share,0);return { traced, untraced:100-traced, origins:leaves.filter(t=>isResolved(t,scenario)).length, depth:Math.max(...transactions.map(t=>level(t.id))), sources:new Set(transactions.map(t=>t.wallet)).size }; }
+export function summary(scenario: Scenario) { return buildTrace(scenario).info; }
 export const methodology = 'Demonstration attribution follows explicit parent-child records backward from the selected swap. Contributions are shares of that transaction, carried across stablecoin conversions at assumed parity without fees. Repeated shares across levels represent the same funds and must not be summed. FIFO is the illustrative accounting context; this concept does not implement a production lot-selection engine. Origin labels describe imported events, not independent verification of source legitimacy. Internal transfers are paired only where the fixture supplies both records.';
 export const limitations = 'Local demonstration data only. CoinDCX API and Linea wallet imports are simulated; no live wallet connection or blockchain verification is performed. External deposits are trace endpoints within the connected dataset, not proof of their pre-deposit provenance.';
+
+export type RecoveryKind = 'connect' | 'import' | 'match' | 'unsupported';
+export type TraceIssue = { id: string; kind: RecoveryKind; title: string; reason: string; action?: string };
+const issues: Record<RecoveryKind, Omit<TraceIssue,'id'>> = {
+  connect: { kind:'connect', title:'Account not connected', reason:"This portion may have originated from an account that isn't connected to KoinX.", action:'Connect account' },
+  import: { kind:'import', title:'Missing transaction history', reason:'Earlier transactions may be missing from your imported history.', action:'Import transaction history' },
+  match: { kind:'match', title:'Internal transfer not matched', reason:"We found a possible transfer, but couldn't match it to the corresponding transaction.", action:'Review transfer' },
+  unsupported: { kind:'unsupported', title:'Source cannot be determined', reason:"We couldn't identify the original source from the available information." },
+};
+// Recovery restores only explicit edges/records from the fixture; it never invents an origin.
+export function buildTrace(scenario: Scenario, recovered: ReadonlySet<string> = new Set()) {
+  const missing: Record<string, RecoveryKind> = scenario==='partial'?{'KX-0738':'import'}:scenario==='unconnected'?{'KX-0740':'connect'}:scenario==='mixed'?{'KX-0740':'connect','KX-0738':'import'}:scenario==='unmatched'?{'KX-0838':'match'}:scenario==='untraceable'?{'KX-0841':'unsupported'}:{};
+  const unresolved: TraceIssue[]=[];
+  const records: Transaction[]=[];
+  function visit(id:string) {
+    const original=byId[id];const kind=missing[id];
+    const blocked=Boolean(kind&&(kind==='unsupported'||!recovered.has(id)));
+    if(blocked)unresolved.push({id,...issues[kind]});
+    const t={...original,children:blocked?[]:[...original.children],paired:blocked&&kind==='match'?undefined:original.paired};
+    records.push(t);t.children.forEach(visit);
+  }
+  visit(selected.id);
+  const lookup=Object.fromEntries(records.map(t=>[t.id,t]));
+  const leaves=(id:string):Transaction[]=>{const t=lookup[id];return t?t.children.length?t.children.flatMap(leaves):[t]:[];};
+  const issueFor=(id:string)=>unresolved.find(i=>i.id===id);
+  const identified=(t:Transaction)=>Boolean(t.category&&!issueFor(t.id));
+  const terminals=leaves(selected.id);
+  const traced=terminals.filter(identified).reduce((sum,t)=>sum+t.share,0);
+  const info={traced,untraced:100-traced,origins:terminals.filter(identified).length,depth:Math.max(...records.map(t=>level(t.id))),sources:new Set(records.map(t=>t.wallet)).size};
+  const classification=(t:Transaction)=>issueFor(t.id)?'Origin not identified · '+issueFor(t.id)!.title:identified(t)?'Origin · '+t.category:t.paired?'Paired internal transfer':'Intermediate transaction';
+  const branchState=(id:string)=>{const ends=leaves(id);const total=ends.reduce((s,t)=>s+t.share,0);const known=ends.filter(identified).reduce((s,t)=>s+t.share,0);return known===total?'identified':known>0?'partial':'unresolved';};
+  return {records,lookup,leaves,issueFor,identified,info,unresolved,classification,branchState};
+}
+export type Trace = ReturnType<typeof buildTrace>;

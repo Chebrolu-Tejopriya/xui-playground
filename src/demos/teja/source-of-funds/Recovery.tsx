@@ -1,0 +1,29 @@
+import { useEffect, useRef, useState } from 'react';
+import { Badge, Button, Drawer, Input, Radio, Checkbox } from '@koinx/xui';
+import { byId, currency, INR, date, type TraceIssue } from './data';
+
+export function Recovery({issue,onClose,onRefresh}:{issue:TraceIssue;onClose:()=>void;onRefresh:(id:string)=>void}) {
+ const [step,setStep]=useState<'choose'|'confirm'|'processing'|'success'|'failed'>('choose');
+ const [choice,setChoice]=useState('');const [filename,setFilename]=useState('');const [fileError,setFileError]=useState('');const [fail,setFail]=useState(false);
+ const timer=useRef<ReturnType<typeof setTimeout>|null>(null);
+ useEffect(()=>()=>{if(timer.current)clearTimeout(timer.current);},[]);
+ const t=byId[issue.id];const counterpart=byId['KX-0837'];
+ function process(){setStep('processing');timer.current=setTimeout(()=>setStep(fail?'failed':'success'),750);}
+ function next(){if(step==='success'){onRefresh(issue.id);return;}if(step==='failed'){setStep('choose');return;}if(issue.kind==='match'&&step==='choose'){setStep('confirm');return;}process();}
+ const valid=issue.kind==='connect'?choice==='CoinDCX':issue.kind==='import'?Boolean(filename)&&!fileError:choice===counterpart.id;
+ const action=step==='success'?'Return & refresh trace':step==='failed'?'Try again':step==='confirm'?'Confirm transfer match':issue.kind==='connect'?'Simulate connection':issue.kind==='import'?'Simulate sample-history import':'Review selected match';
+ return <Drawer open onClose={onClose} title={issue.action} width="480px" footer={<Button fullWidth loading={step==='processing'} disabled={step==='processing'||(step==='choose'&&!valid)} onClick={next}>{action}</Button>}>
+  <div className="sof-recovery-flow"><Badge variant="label-neutral">Simulation only · no credentials requested</Badge><p>{issue.reason}</p><div className="sof-recovery-facts"><strong>{t.amount} {t.asset}</strong><span>{t.share}% of selected transaction · {currency(INR*t.share/100)}</span><span>{t.id} · {t.wallet}</span></div>
+  {step==='choose'&&<>
+   {issue.kind==='connect'&&<fieldset><legend>Select a mock account</legend>{['CoinDCX','Coinbase','Ledger'].map(account=><Radio key={account} name="recovery-account" checked={choice===account} onChange={()=>setChoice(account)} disabled={account!=='CoinDCX'} label={<span>{account}{account!=='CoinDCX'&&<small>No relevant sample records available</small>}</span>}/>)}<p>Connecting CoinDCX in this demo makes the missing external-deposit record available. Existing imported CoinDCX records remain intact.</p></fieldset>}
+   {issue.kind==='import'&&<><Input type="file" accept=".csv,text/csv" label="Optional local CSV reference" error={Boolean(fileError)} helperText={fileError||'The file stays on your device. Its contents are not read or parsed.'} onChange={e=>{const f=e.target.files?.[0];setFilename(f?.name||'');setFileError(f&&!f.name.toLowerCase().endsWith('.csv')?'Choose a CSV file, or use the sample below.':'');}}/><Button variant="outline" onClick={()=>{setFilename('CoinDCX-history-july-2025.sample.csv');setFileError('');}}>Use sample CSV</Button>{filename&&<div className="sof-callout"><strong>{filename}</strong><p>Simulated result: 1 historical income record ({byId['KX-0698'].amount} USDT), linked to {t.id}. This fixed sample is used regardless of the optional file’s contents; selecting a file does not validate it.</p></div>}</>}
+   {issue.kind==='match'&&<><h3>Possible counterpart</h3><p>Same asset and amount; withdrawal precedes the deposit by 2 minutes. Confirm only if these records represent the same transfer.</p><Radio name="transfer-counterpart" checked={choice===counterpart.id} onChange={()=>setChoice(counterpart.id)} label={<span><strong>{counterpart.id} · Internal withdrawal</strong><small>{counterpart.amount} USDT · CoinDCX → Linea wallet</small><small>{date(counterpart.date)} · 11:02 UTC</small></span>}/><Badge variant="label-warning">Possible match · not yet applied</Badge></>}
+   <details className="sof-recovery-test"><summary>Simulation outcome</summary><Checkbox label="Make this attempt fail" checked={fail} onChange={e=>setFail(e.target.checked)}/></details>
+  </>}
+  {step==='confirm'&&<div className="sof-callout"><h3>Confirm this transfer relationship?</h3><p>{counterpart.id} (withdrawal) → {t.id} (deposit), 84.903 USDT. Both records represent the same funds and will not be counted as two sources.</p><p>This updates the local sample relationship only. It is not independent verification.</p><Button variant="outline" onClick={()=>setStep('choose')}>Choose again</Button></div>}
+  {step==='processing'&&<div role="status" className="sof-callout"><h3>{issue.kind==='connect'?'Connecting mock account…':issue.kind==='import'?'Preparing sample history…':'Applying sample match…'}</h3><p>Your existing trace is unchanged while this simulation runs.</p></div>}
+  {step==='failed'&&<div role="alert" className="sof-callout"><h3>Recovery attempt failed</h3><p>The simulated {issue.kind==='connect'?'connection':issue.kind==='import'?'import':'transfer match'} failed. No records or relationships were changed. The branch remains unresolved. Turn off the failure option to retry successfully.</p></div>}
+  {step==='success'&&<div role="status" className="sof-recovery-success"><Badge variant="label-positive">{issue.kind==='connect'?'CoinDCX connected · simulated':issue.kind==='import'?'Sample history ready':'Sample transfer match confirmed'}</Badge><h3>Ready to refresh this investigation</h3><p>{issue.kind==='connect'?'The missing CoinDCX deposit is now available.':issue.kind==='import'?'One historical income event is now available.':'The withdrawal and deposit can now be linked.'} The trace will update when you return and refresh.</p><p>Closing without refreshing leaves the investigation unchanged.</p></div>}
+  </div>
+ </Drawer>;
+}
