@@ -92,7 +92,8 @@ const componentJs=ts.transpile(componentSource,{target:ts.ScriptTarget.ES2022,mo
  .replace("from './data'",'from '+JSON.stringify(dataUrl))
  .replace("from '@koinx/xui'",'from '+JSON.stringify(new URL('./dist/xui.js',pathToFileURL(require.resolve('@koinx/xui/package.json'))).href))
  .replace("from 'react'",'from '+JSON.stringify(pathToFileURL(require.resolve('react')).href));
-const components=await import('data:text/javascript;base64,'+Buffer.from('import React from '+JSON.stringify(pathToFileURL(require.resolve('react')).href)+';\n'+componentJs).toString('base64'));
+const componentUrl='data:text/javascript;base64,'+Buffer.from('import React from '+JSON.stringify(pathToFileURL(require.resolve('react')).href)+';\n'+componentJs).toString('base64');
+const components=await import(componentUrl);
 const renderReport=trace=>renderToStaticMarkup(React.createElement(components.TraceContext.Provider,{value:trace},React.createElement(components.Report,{scenario:'mixed',generated:'Test date'})));
 const beforeReport=renderReport(mixed);
 assert.ok(beforeReport.includes('Unresolved portions'));
@@ -111,5 +112,21 @@ assert.ok(tree.includes('Origin not identified'));
 assert.ok(tree.includes('Connect account'));
 assert.ok(tree.includes('Import transaction history'));
 assert.ok(!tree.includes('KX-0698'));
+const transactionSource=await readFile(new URL('./Transactions.tsx',import.meta.url),'utf8');
+const transactionJs=ts.transpile(transactionSource,{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext,jsx:ts.JsxEmit.React})
+ .replace("from './data'",'from '+JSON.stringify(dataUrl))
+ .replace("from './components'",'from '+JSON.stringify(componentUrl))
+ .replace("from '@koinx/xui'",'from '+JSON.stringify(new URL('./dist/xui.js',pathToFileURL(require.resolve('@koinx/xui/package.json'))).href))
+ .replace("from 'react'",'from '+JSON.stringify(pathToFileURL(require.resolve('react')).href))
+ .replace(/import usdtLogo from [^;]+;/,"const usdtLogo='local-usdt-fixture.png';");
+const transactionUI=await import('data:text/javascript;base64,'+Buffer.from('import React from '+JSON.stringify(pathToFileURL(require.resolve('react')).href)+';\n'+transactionJs).toString('base64'));
+const transactionMarkup=renderToStaticMarkup(React.createElement(components.TraceContext.Provider,{value:mixed},React.createElement(transactionUI.TransactionList,{rows:[selected],scenario:'mixed',onInvestigate(){}})));
+assert.ok(transactionMarkup.includes('17 Aug 2025'));
+assert.ok(transactionMarkup.includes('84.903 USDT'));
+assert.ok(transactionMarkup.includes('184.7878'));
+assert.ok(transactionMarkup.includes('Investigate source of funds'));
+assert.ok(transactionMarkup.includes('Details'));
+assert.ok(transactionMarkup.includes('25% traced'));
+assert.ok(transactionMarkup.includes('Cost basis / fees / TDS'));
 URL.createObjectURL=originalCreate;URL.revokeObjectURL=originalRevoke;
 console.log('Passed: 14 records, 7 levels, reconciled attribution, all recovery paths, partial recovery, cancellation/no-op guards and synchronized CSV exports.');
