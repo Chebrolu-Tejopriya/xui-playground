@@ -25,3 +25,18 @@
 .sof-node-field{display:grid;grid-template-columns:56px minmax(0,1fr);gap:var(--spacing-8);align-items:start}
 .sof-node-field>span{color:var(--content-secondary)}
 .sof-node-field>strong{font:var(--type-body-3);color:var(--content-primary);overflow-wrap:anywhere}
+
+.sof-node{width:176px;border-radius:6px;padding:2px 0 4px}
+.sof-node.is-active{border-width:1px}
+.sof-node-main{padding:var(--spacing-6) var(--spacing-10);gap:var(--spacing-8)}
+.sof-node-top{font:var(--type-body-3)}
+.sof-node-top>strong{font:var(--type-subtitle-3)}
+.sof-node-platform{display:flex;align-items:center;gap:var(--spacing-6);font:var(--type-label-4)}
+.sof-node-wallet-logo{display:flex;align-items:center;justify-content:center;width:14px;height:14px;flex:none;border-radius:50%;background:var(--content-absolute-white)}
+.sof-node-wallet-logo img{display:block;object-fit:contain}
+.sof-node-fields{gap:9px;padding-top:var(--spacing-6)}
+.sof-node-field{display:flex;justify-content:space-between;gap:var(--spacing-6)}
+.sof-node-field>span{font:var(--type-label-4);flex:none}
+.sof-node-field>strong{font:var(--type-subtitle-4);text-align:right;max-width:104px}
+.sof-node-main>small{font:var(--type-label-4)}
+.sof-node-top>span{flex:1;min-width:0}.sof-node-top>strong{flex:none}

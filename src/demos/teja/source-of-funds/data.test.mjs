@@ -88,7 +88,7 @@ assert.ok(!recoveredCsv.includes('"KX-0698"'));
 // This checks data-to-UI consistency without claiming browser interaction coverage.
 const require=createRequire(import.meta.url);
 const componentSource=await readFile(new URL('./components.tsx',import.meta.url),'utf8');
-const componentJs=ts.transpile(componentSource,{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext,jsx:ts.JsxEmit.React})
+const componentJs=ts.transpile(componentSource.replace(/import lineaLogo from [^;]+;/,"const lineaLogo='linea-fixture.png';"),{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext,jsx:ts.JsxEmit.React})
  .replace("from './data'",'from '+JSON.stringify(dataUrl))
  .replace("from '@koinx/xui'",'from '+JSON.stringify(new URL('./dist/xui.js',pathToFileURL(require.resolve('@koinx/xui/package.json'))).href))
  .replace("from 'react'",'from '+JSON.stringify(pathToFileURL(require.resolve('react')).href));
@@ -111,7 +111,7 @@ assert.ok(tree.includes('Selected transaction'));
 assert.ok(!tree.includes('Paired transfer'));
 assert.ok(!tree.includes('Contributing transaction'));
 assert.ok(!tree.includes('Collapse'));
-for(const label of ['Platform','Inflow','Outflow','Value','Share','Import','Reference']) assert.ok(tree.includes(label));
+for(const label of ['Inflow','Outflow','Value','Share','Import','Reference']) assert.ok(tree.includes(label));
 assert.ok(tree.includes('84.903 USDT'));
 assert.ok(tree.includes('API (simulated)'));
 assert.ok(tree.includes('Account not connected'));
