@@ -20,3 +20,8 @@
 .sof-trace-intro{display:grid;gap:var(--spacing-16);font:var(--type-body-2)}
 .sof-trace-intro p{margin:0;color:var(--content-secondary)}
 .sof-trace-intro strong{color:var(--content-primary)}
+
+.sof-node-fields{display:grid;gap:var(--spacing-8);border-top:1px solid var(--border-secondary);padding-top:var(--spacing-8)}
+.sof-node-field{display:grid;grid-template-columns:56px minmax(0,1fr);gap:var(--spacing-8);align-items:start}
+.sof-node-field>span{color:var(--content-secondary)}
+.sof-node-field>strong{font:var(--type-body-3);color:var(--content-primary);overflow-wrap:anywhere}
