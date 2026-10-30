@@ -40,3 +40,20 @@
 .sof-node-field>strong{font:var(--type-subtitle-4);text-align:right;max-width:104px}
 .sof-node-main>small{font:var(--type-label-4)}
 .sof-node-top>span{flex:1;min-width:0}.sof-node-top>strong{flex:none}
+
+/* Keep the page, tree and detail scroll areas consistent with the XUI theme. */
+.sof-selected-label { align-items: flex-start; }
+
+@media (min-width: 901px) {
+  /* Put XUI's right gutter inside the scrollport, keeping content inset. */
+  .sof > div { padding-right: 0; }
+  .sof > div > main { padding-right: var(--spacing-24); }
+}
+
+.sof, .sof * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-primary) var(--surface-primary);
+}
+@media (forced-colors: active) {
+  .sof, .sof * { scrollbar-color: auto; }
+}

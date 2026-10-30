@@ -85,6 +85,7 @@ function useTheme(): [Theme, () => void] {
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.style.colorScheme = theme;
     try {
       localStorage.setItem(KEY, theme);
     } catch {
